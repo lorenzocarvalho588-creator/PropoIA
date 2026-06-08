@@ -48,22 +48,100 @@ const C = {
 };
 
 const TEMPLATES = [
+  /* ── MARKETING & DIGITAL ── */
   {id:"Marketing Digital",icon:"trending-up",desc:"Campanhas, estratégia e presença online"},
   {id:"Tráfego Pago",icon:"target",desc:"Gestão de anúncios e performance"},
   {id:"Social Media",icon:"megaphone",desc:"Conteúdo e gestão de redes sociais"},
+  {id:"SEO",icon:"search",desc:"Otimização e ranqueamento orgânico"},
+  {id:"Copywriting",icon:"pen-tool",desc:"Textos persuasivos e conteúdo"},
+  {id:"Email Marketing",icon:"mail",desc:"Automação e campanhas de e-mail"},
+  {id:"Inbound Marketing",icon:"magnet",desc:"Atração e nutrição de leads"},
+  {id:"Marketing de Conteúdo",icon:"file-text",desc:"Estratégia e produção de conteúdo"},
+  {id:"Influencer Marketing",icon:"star",desc:"Parcerias com criadores de conteúdo"},
+  {id:"Growth Hacking",icon:"zap",desc:"Crescimento acelerado e experimentos"},
+  {id:"Automação de Marketing",icon:"settings",desc:"Ferramentas e fluxos automáticos"},
+  {id:"Marketing de Afiliados",icon:"link",desc:"Programas e gestão de afiliados"},
+  /* ── TECH & DESENVOLVIMENTO ── */
   {id:"Desenvolvimento Web",icon:"code",desc:"Sites, sistemas e aplicações"},
+  {id:"Desenvolvimento Mobile",icon:"smartphone",desc:"Apps para iOS e Android"},
+  {id:"Desenvolvimento de Software",icon:"cpu",desc:"Sistemas e soluções sob medida"},
+  {id:"E-commerce",icon:"shopping-cart",desc:"Lojas virtuais e vendas online"},
+  {id:"Automação de Processos",icon:"repeat",desc:"Bots, RPA e automação empresarial"},
+  {id:"Inteligência Artificial",icon:"brain",desc:"Soluções com IA e machine learning"},
+  {id:"Cloud & Infraestrutura",icon:"cloud",desc:"Servidores, cloud e DevOps"},
+  {id:"Segurança Digital",icon:"shield",desc:"Cibersegurança e proteção de dados"},
+  {id:"Suporte de TI",icon:"tool",desc:"Manutenção e suporte técnico"},
+  {id:"Data Science",icon:"bar-chart-2",desc:"Análise de dados e business intelligence"},
+  {id:"Integração de Sistemas",icon:"git-merge",desc:"APIs, ERPs e integrações"},
   {id:"UX / UI Design",icon:"monitor",desc:"Interfaces, protótipos e experiência"},
+  /* ── DESIGN & CRIATIVO ── */
   {id:"Design Gráfico",icon:"palette",desc:"Materiais visuais e peças gráficas"},
   {id:"Branding & Identidade",icon:"gem",desc:"Marca, posicionamento e identidade"},
-  {id:"Copywriting",icon:"pen-tool",desc:"Textos persuasivos e conteúdo"},
-  {id:"SEO",icon:"search",desc:"Otimização e ranqueamento orgânico"},
-  {id:"E-commerce",icon:"shopping-cart",desc:"Lojas virtuais e vendas online"},
-  {id:"Fotografia & Vídeo",icon:"camera",desc:"Produção audiovisual e ensaios"},
-  {id:"Edição de Vídeo",icon:"video",desc:"Edição, motion e pós-produção"},
-  {id:"Consultoria",icon:"award",desc:"Estratégia e assessoria especializada"},
+  {id:"Fotografia",icon:"camera",desc:"Ensaios, produtos e eventos"},
+  {id:"Produção de Vídeo",icon:"video",desc:"Vídeos institucionais e comerciais"},
+  {id:"Edição de Vídeo",icon:"film",desc:"Edição, motion e pós-produção"},
+  {id:"Motion Graphics",icon:"play-circle",desc:"Animações e vídeos animados"},
+  {id:"Ilustração",icon:"pen-tool",desc:"Ilustrações digitais e arte"},
+  {id:"Design de Embalagem",icon:"package",desc:"Packaging e identidade de produto"},
+  {id:"Design de Interiores",icon:"home",desc:"Projetos e ambientação de espaços"},
+  {id:"Produção Musical",icon:"music",desc:"Composição, gravação e mixagem"},
+  /* ── SAÚDE & BEM-ESTAR ── */
+  {id:"Nutrição",icon:"heart",desc:"Consultoria e acompanhamento nutricional"},
+  {id:"Personal Trainer",icon:"activity",desc:"Treinos personalizados e acompanhamento"},
+  {id:"Psicologia",icon:"user",desc:"Atendimento e acompanhamento psicológico"},
+  {id:"Fisioterapia",icon:"thermometer",desc:"Reabilitação e tratamentos físicos"},
+  {id:"Medicina Estética",icon:"award",desc:"Procedimentos e tratamentos estéticos"},
+  {id:"Coaching de Saúde",icon:"sun",desc:"Hábitos, bem-estar e qualidade de vida"},
+  {id:"Odontologia",icon:"smile",desc:"Tratamentos e procedimentos odontológicos"},
+  {id:"Enfermagem",icon:"plus-circle",desc:"Cuidados e serviços de enfermagem"},
+  {id:"Terapia Ocupacional",icon:"clock",desc:"Reabilitação e autonomia funcional"},
+  /* ── EDUCAÇÃO & TREINAMENTO ── */
+  {id:"Cursos Online",icon:"book-open",desc:"Criação e venda de cursos digitais"},
+  {id:"Treinamento Corporativo",icon:"users",desc:"Capacitação e desenvolvimento de equipes"},
+  {id:"Aulas Particulares",icon:"user-check",desc:"Ensino individualizado e reforço"},
   {id:"Coaching & Mentoria",icon:"lightbulb",desc:"Desenvolvimento e acompanhamento"},
-  {id:"Eventos",icon:"calendar",desc:"Planejamento e produção de eventos"},
+  {id:"Consultoria Educacional",icon:"graduation-cap",desc:"Orientação e projetos educacionais"},
+  {id:"Palestras & Workshops",icon:"mic",desc:"Eventos educativos e formativos"},
+  {id:"Tradução & Idiomas",icon:"globe",desc:"Tradução, legendagem e aulas de idiomas"},
+  /* ── JURÍDICO & FINANCEIRO ── */
+  {id:"Advocacia",icon:"briefcase",desc:"Serviços jurídicos e assessoria legal"},
+  {id:"Contabilidade",icon:"calculator",desc:"Serviços contábeis e fiscais"},
+  {id:"Consultoria Financeira",icon:"dollar-sign",desc:"Finanças, investimentos e planejamento"},
+  {id:"Consultoria Tributária",icon:"file-minus",desc:"Gestão fiscal e planejamento tributário"},
+  {id:"Auditoria",icon:"check-square",desc:"Auditoria contábil e de processos"},
+  {id:"Seguros",icon:"shield-check",desc:"Corretagem e consultoria de seguros"},
+  /* ── CONSTRUÇÃO & REFORMA ── */
+  {id:"Arquitetura",icon:"layout",desc:"Projetos arquitetônicos e urbanísticos"},
+  {id:"Engenharia Civil",icon:"sliders",desc:"Projetos e laudos de engenharia"},
+  {id:"Reforma & Construção",icon:"hammer",desc:"Obras, reformas e acabamentos"},
+  {id:"Elétrica & Hidráulica",icon:"zap",desc:"Instalações elétricas e hidráulicas"},
+  {id:"Paisagismo",icon:"feather",desc:"Jardins, áreas externas e verde urbano"},
+  {id:"Marcenaria",icon:"scissors",desc:"Móveis planejados e carpintaria"},
+  {id:"Energia Solar",icon:"sun",desc:"Instalação de painéis solares"},
+  {id:"Climatização",icon:"wind",desc:"Ar-condicionado e ventilação"},
+  /* ── GESTÃO & RH ── */
+  {id:"Consultoria",icon:"award",desc:"Estratégia e assessoria especializada"},
+  {id:"Gestão de Projetos",icon:"trello",desc:"Planejamento e execução de projetos"},
+  {id:"Recrutamento & Seleção",icon:"user-plus",desc:"Hunting e processos seletivos"},
+  {id:"Gestão de Pessoas",icon:"users",desc:"RH, cultura e desenvolvimento humano"},
+  {id:"Gestão de Qualidade",icon:"check-circle",desc:"ISO, processos e melhoria contínua"},
+  {id:"Logística",icon:"truck",desc:"Transporte, distribuição e supply chain"},
+  {id:"Franquias",icon:"grid",desc:"Consultoria e expansão de franquias"},
+  /* ── EVENTOS & ENTRETENIMENTO ── */
+  {id:"Eventos Corporativos",icon:"calendar",desc:"Organização de eventos empresariais"},
+  {id:"Casamentos & Festas",icon:"gift",desc:"Planejamento e produção de festas"},
+  {id:"DJ & Música ao Vivo",icon:"headphones",desc:"Sonorização e entretenimento"},
+  {id:"Buffet & Gastronomia",icon:"coffee",desc:"Serviços gastronômicos e catering"},
+  {id:"Cerimonial",icon:"star",desc:"Cerimonial e mestre de cerimônias"},
+  /* ── OUTROS SERVIÇOS ── */
   {id:"Empresarial",icon:"briefcase",desc:"Soluções corporativas e B2B"},
+  {id:"Imobiliário",icon:"home",desc:"Compra, venda e gestão de imóveis"},
+  {id:"Pet Care",icon:"heart",desc:"Serviços e cuidados para animais"},
+  {id:"Moda & Estilo",icon:"shopping-bag",desc:"Consultoria de imagem e personal stylist"},
+  {id:"Turismo & Viagens",icon:"map",desc:"Roteiros, pacotes e experiências"},
+  {id:"Limpeza & Conservação",icon:"wind",desc:"Serviços de limpeza profissional"},
+  {id:"Segurança Patrimonial",icon:"shield",desc:"Vigilância e segurança privada"},
+  {id:"Serviços Ambientais",icon:"leaf",desc:"Meio ambiente e sustentabilidade"},
 ];
 
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
@@ -79,9 +157,63 @@ const btnG = {background:"#fff",color:C.text,border:`1px solid ${C.border}`,padd
 const btnWA = {background:"#25D366",color:"#fff",border:"none",padding:"11px 20px",borderRadius:10,fontSize:14.5,fontWeight:600,cursor:"pointer"};
 const rowG = {display:"grid",gridTemplateColumns:"1fr 1fr",gap:14};
 
+/* ─── SENHA DE ACESSO ─── */
+const SENHA_CORRETA = "propoia2026";
+
+function Login({ onLogin }) {
+  const [senha, setSenha] = useState("");
+  const [erro, setErro] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const tentar = () => {
+    setLoading(true);
+    setTimeout(() => {
+      if (senha === SENHA_CORRETA) {
+        localStorage.setItem("propoai_auth", "ok");
+        onLogin();
+      } else {
+        setErro(true);
+        setLoading(false);
+        setTimeout(() => setErro(false), 2500);
+      }
+    }, 600);
+  };
+
+  return (
+    <div style={{minHeight:"100vh",background:"linear-gradient(160deg,#172554 0%,#1E3A8A 100%)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+      <div style={{background:"#fff",borderRadius:20,padding:"44px 40px",maxWidth:400,width:"100%",boxShadow:"0 30px 80px rgba(0,0,0,.3)",textAlign:"center"}}>
+        <div style={{width:56,height:56,borderRadius:16,background:"linear-gradient(135deg,#1E3A8A,#3B82F6)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 20px",fontSize:26}}>✦</div>
+        <h1 style={{fontSize:26,fontWeight:800,color:"#0B1220",margin:"0 0 6px",letterSpacing:"-0.5px"}}>Propo<span style={{color:"#2563EB"}}>AI</span></h1>
+        <p style={{color:"#64748B",fontSize:14.5,margin:"0 0 28px",lineHeight:1.6}}>Digite a senha de acesso enviada no seu e-mail após a compra.</p>
+        <input
+          type="password"
+          value={senha}
+          onChange={e=>setSenha(e.target.value)}
+          onKeyDown={e=>e.key==="Enter"&&tentar()}
+          placeholder="Senha de acesso"
+          style={{width:"100%",padding:"13px 16px",border:`2px solid ${erro?"#FCA5A5":"#E2E8F0"}`,borderRadius:12,fontSize:15,outline:"none",boxSizing:"border-box",marginBottom:14,background:erro?"#FFF5F5":"#fff",transition:"all .2s",fontFamily:"inherit"}}
+        />
+        {erro && <p style={{color:"#DC2626",fontSize:13.5,margin:"-6px 0 12px",fontWeight:600}}>Senha incorreta. Verifique seu e-mail.</p>}
+        <button
+          onClick={tentar}
+          disabled={loading}
+          style={{width:"100%",background:"linear-gradient(135deg,#1E3A8A,#2563EB)",color:"#fff",border:"none",padding:"14px",borderRadius:12,fontSize:16,fontWeight:700,cursor:"pointer",fontFamily:"inherit",opacity:loading?.7:1,transition:"all .2s",boxShadow:"0 6px 20px rgba(37,99,235,.35)"}}>
+          {loading ? "Verificando..." : "Entrar no PropoAI"}
+        </button>
+        <p style={{marginTop:20,fontSize:12.5,color:"#94A3B8",lineHeight:1.6}}>
+          Não recebeu a senha? Verifique sua caixa de spam<br/>ou entre em contato com o suporte.
+        </p>
+      </div>
+    </div>
+  );
+}
+
 /* ─── APP ─── */
 function App(){
+  const [auth, setAuth] = useState(() => localStorage.getItem("propoai_auth") === "ok");
   const [view,setView] = useState("dashboard");
+
+  if (!auth) return <Login onLogin={() => setAuth(true)} />;
   const [proposals,setProposals] = useState(()=>load("propoai_proposals",[]));
   const [settings,setSettings] = useState(()=>load("propoai_settings",{companyName:"Sua Empresa",logo:"",brandColor:C.primary,email:"",phone:"",whatsapp:""}));
   const [current,setCurrent] = useState(null);
