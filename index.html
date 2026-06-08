@@ -607,22 +607,10 @@ function ViewDoc({proposal,settings,back,publish}){
     setCopied(true); setTimeout(()=>setCopied(false),1800);
   };
 
-  // WhatsApp: manda link + nome da proposta
-  const sendWhatsApp = () => {
-    const title = proposal.content?.coverTitle || proposal.service;
-    const client = proposal.clientName ? ` para ${proposal.clientName}` : "";
-    const msg = `Olá! Segue a proposta comercial *"${title}"*${client}. Acesse pelo link: ${link}`;
-    const phone = settings.whatsapp ? settings.whatsapp.replace(/\D/g,"") : "";
-    const url = phone
-      ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
-      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-    window.open(url, "_blank");
-  };
-
   const downloadPDF = () => window.print();
 
   return <div style={{padding:"20px clamp(16px,4vw,36px)"}}>
-    <div className="noprint" style={{display:"flex",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}}>
+    <div className="noprint" style={{display:"flex",justifyContent:"space-between",marginBottom:14,flexWrap:"wrap",gap:10}}>
       <button onClick={back} style={{...btnG,display:"inline-flex",alignItems:"center",gap:6}}>
         <Icon n="chevron-left" s={16}/> Voltar
       </button>
@@ -633,12 +621,18 @@ function ViewDoc({proposal,settings,back,publish}){
         <button onClick={()=>setShare(true)} className="hov" style={{...btnG,display:"inline-flex",alignItems:"center",gap:6}}>
           <Icon n="share-2" s={16}/> Compartilhar
         </button>
-        <button onClick={sendWhatsApp} className="hov" style={{...btnWA,display:"inline-flex",alignItems:"center",gap:7}}>
-          <Icon n="send" c="#fff" s={16}/> WhatsApp
-        </button>
         <button onClick={downloadPDF} className="hov" style={{...btnP,display:"inline-flex",alignItems:"center",gap:7}}>
           <Icon n="download" c="#fff" s={16}/> Baixar PDF
         </button>
+      </div>
+    </div>
+
+    {/* DICA PDF */}
+    <div className="noprint" style={{background:"#FFF7ED",border:"1px solid #FED7AA",borderRadius:12,padding:"12px 16px",marginBottom:18,display:"flex",alignItems:"flex-start",gap:10}}>
+      <span style={{fontSize:18}}>💡</span>
+      <div>
+        <strong style={{fontSize:13.5,color:"#92400E"}}>Dica profissional:</strong>
+        <span style={{fontSize:13.5,color:"#92400E"}}> Baixe o PDF e envie o arquivo pelo WhatsApp ou e-mail para o seu cliente. É muito mais profissional do que enviar um link!</span>
       </div>
     </div>
 
@@ -652,7 +646,10 @@ function ViewDoc({proposal,settings,back,publish}){
       <div onClick={e=>e.stopPropagation()}
         style={{background:"#fff",borderRadius:18,padding:28,maxWidth:460,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,.25)"}}>
         <h3 style={{margin:"0 0 6px",fontSize:18,fontWeight:800}}>Compartilhar proposta</h3>
-        <p style={{color:C.textSec,fontSize:14,marginTop:0,marginBottom:18}}>Envie diretamente ao seu cliente:</p>
+        <div style={{background:"#FFF7ED",border:"1px solid #FED7AA",borderRadius:10,padding:"10px 14px",marginBottom:16,display:"flex",gap:8,alignItems:"flex-start"}}>
+          <span style={{fontSize:16}}>💡</span>
+          <p style={{color:"#92400E",fontSize:13,margin:0,lineHeight:1.5}}><strong>Recomendado:</strong> Baixe o PDF e envie o arquivo diretamente pelo WhatsApp. Fica muito mais profissional para o cliente!</p>
+        </div>
 
         <div style={{display:"flex",gap:8,marginBottom:12}}>
           <input readOnly value={link} style={{...inp,fontSize:12.5}}/>
@@ -661,18 +658,17 @@ function ViewDoc({proposal,settings,back,publish}){
           </button>
         </div>
 
-        <button onClick={sendWhatsApp} className="hov"
-          style={{...btnWA,width:"100%",marginBottom:10,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:15,padding:"13px"}}>
-          <Icon n="send" c="#fff" s={18}/> Enviar pelo WhatsApp
+        <button onClick={downloadPDF} className="hov"
+          style={{...btnP,width:"100%",marginBottom:10,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:15,padding:"13px"}}>
+          <Icon n="download" c="#fff" s={18}/> Baixar PDF para enviar
         </button>
 
-        <button onClick={downloadPDF} className="hov"
-          style={{...btnG,width:"100%",display:"inline-flex",alignItems:"center",justifyContent:"center",gap:7}}>
-          <Icon n="download" s={16}/> Baixar como PDF
-        </button>
+        <div style={{background:"#F0FDF4",border:"1px solid #BBF7D0",borderRadius:10,padding:"10px 14px",marginBottom:10,fontSize:13,color:"#166534",lineHeight:1.5}}>
+          ✅ <strong>Como enviar pelo WhatsApp:</strong> Baixe o PDF → abra o WhatsApp → anexe o arquivo → envie para o cliente. Muito mais profissional!
+        </div>
 
         <button onClick={()=>setShare(false)}
-          style={{...btnG,width:"100%",marginTop:10,color:C.textSec,border:"none",fontSize:13}}>
+          style={{...btnG,width:"100%",color:C.textSec,border:"none",fontSize:13}}>
           Fechar
         </button>
       </div>
