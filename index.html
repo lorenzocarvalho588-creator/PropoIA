@@ -1,106 +1,749 @@
-exports.handler = async function (event) {
-  if (event.httpMethod !== "POST") {
-    return { statusCode: 405, body: "Method Not Allowed" };
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PropoAI – Propostas Comerciais com IA</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.395.0/lucide.min.js"></script>
+<style>
+  *{font-family:'Inter',system-ui,sans-serif;-webkit-font-smoothing:antialiased;box-sizing:border-box}
+  body{margin:0;background:#F1F5F9;color:#0F172A}
+  i[data-lucide]{width:18px;height:18px;display:inline-block;vertical-align:middle}
+  .hov{transition:all .18s ease}.hov:hover{transform:translateY(-2px)}
+  .spin{width:32px;height:32px;border:3px solid #DBEAFE;border-top-color:#2563EB;border-radius:50%;animation:sp 1s linear infinite}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+  .fu{animation:fu .35s ease both}
+  @keyframes sl{0%{margin-left:-40%}100%{margin-left:110%}}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+  input,textarea,select{font-family:inherit}
+  ::-webkit-scrollbar{width:7px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+  @media print{
+    .noprint{display:none!important}
+    body{background:#fff;margin:0}
+    #wrap{box-shadow:none!important;border-radius:0!important;max-width:100%!important}
   }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback } = React;
 
-  const ANTHROPIC_API_KEY = process.env.ANTHROPIC_API_KEY;
-  if (!ANTHROPIC_API_KEY) {
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "API key não configurada no Netlify." }),
-    };
-  }
-
-  let body;
-  try {
-    body = JSON.parse(event.body);
-  } catch {
-    return { statusCode: 400, body: JSON.stringify({ error: "JSON inválido." }) };
-  }
-
-  const { template, clientName, company, service, objective, scope, deadline, value, notes, companyName } = body;
-
-  const prompt = `Você é um especialista em propostas comerciais brasileiras. Crie uma proposta profissional, persuasiva e completa no formato JSON abaixo.
-
-DADOS DO PROJETO:
-- Empresa prestadora: ${companyName || "Nossa Empresa"}
-- Template/Categoria: ${template || "Serviços"}
-- Cliente: ${clientName || "Cliente"}${company ? ` (${company})` : ""}
-- Serviço: ${service}
-- Objetivo: ${objective || "não informado"}
-- Escopo: ${scope || "não informado"}
-- Prazo: ${deadline || "a combinar"}
-- Valor: ${value || "a combinar"}
-- Observações: ${notes || "nenhuma"}
-
-INSTRUÇÕES:
-- Escreva em português brasileiro formal e profissional
-- Seja persuasivo, específico e orientado a resultados
-- Use o nome do cliente no texto quando fizer sentido
-- Adapte o tom ao template informado
-
-Retorne APENAS o JSON abaixo, sem markdown, sem comentários, sem texto extra:
-
-{
-  "coverTitle": "título impactante",
-  "coverSubtitle": "subtítulo complementar",
-  "presentation": "parágrafos de apresentação",
-  "objectives": ["objetivo 1", "objetivo 2", "objetivo 3", "objetivo 4"],
-  "scope": ["entrega 1", "entrega 2", "entrega 3", "entrega 4", "entrega 5"],
-  "timeline": [
-    {"phase": "Fase 1", "duration": "Semana 1-2", "description": "descrição"},
-    {"phase": "Fase 2", "duration": "Semana 3-4", "description": "descrição"},
-    {"phase": "Fase 3", "duration": "Semana 5-6", "description": "descrição"}
-  ],
-  "investmentIntro": "introdução ao investimento",
-  "investmentItems": [
-    {"item": "item 1", "value": "R$ valor"},
-    {"item": "item 2", "value": "R$ valor"}
-  ],
-  "investmentTotal": "valor total",
-  "benefits": ["benefício 1", "benefício 2", "benefício 3", "benefício 4", "benefício 5"],
-  "differentials": ["diferencial 1", "diferencial 2", "diferencial 3"],
-  "nextSteps": ["passo 1", "passo 2", "passo 3", "passo 4"],
-  "closing": "parágrafo de encerramento"
-}`;
-
-  try {
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-haiku-4-5",
-        max_tokens: 2000,
-        messages: [{ role: "user", content: prompt }],
-      }),
-    });
-
-    if (!response.ok) {
-      const err = await response.text();
-      console.error("Anthropic error:", err);
-      return { statusCode: 502, body: JSON.stringify({ error: "Erro na API da IA." }) };
-    }
-
-    const data = await response.json();
-    const text = data.content?.[0]?.text || "";
-    const clean = text.replace(/```json|```/gi, "").trim();
-    const s = clean.indexOf("{"), e = clean.lastIndexOf("}");
-    const content = JSON.parse(s !== -1 ? clean.slice(s, e + 1) : clean);
-
-    return {
-      statusCode: 200,
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ content }),
-    };
-  } catch (err) {
-    console.error("Function error:", err);
-    return {
-      statusCode: 500,
-      body: JSON.stringify({ error: "Erro interno na função." }),
-    };
-  }
+const C = {
+  primary:"#1E3A8A",
+  secondary:"#2563EB",
+  accent:"#3B82F6",
+  bg:"#fff",
+  bgSec:"#EEF2F7",
+  text:"#0B1220",
+  textSec:"#475569",
+  success:"#059669",
+  border:"#CBD5E1",
+  sidebar:"#172554"
 };
+
+const TEMPLATES = [
+  {id:"Marketing Digital",icon:"trending-up",desc:"Campanhas, estratégia e presença online"},
+  {id:"Tráfego Pago",icon:"target",desc:"Gestão de anúncios e performance"},
+  {id:"Social Media",icon:"megaphone",desc:"Conteúdo e gestão de redes sociais"},
+  {id:"Desenvolvimento Web",icon:"code",desc:"Sites, sistemas e aplicações"},
+  {id:"UX / UI Design",icon:"monitor",desc:"Interfaces, protótipos e experiência"},
+  {id:"Design Gráfico",icon:"palette",desc:"Materiais visuais e peças gráficas"},
+  {id:"Branding & Identidade",icon:"gem",desc:"Marca, posicionamento e identidade"},
+  {id:"Copywriting",icon:"pen-tool",desc:"Textos persuasivos e conteúdo"},
+  {id:"SEO",icon:"search",desc:"Otimização e ranqueamento orgânico"},
+  {id:"E-commerce",icon:"shopping-cart",desc:"Lojas virtuais e vendas online"},
+  {id:"Fotografia & Vídeo",icon:"camera",desc:"Produção audiovisual e ensaios"},
+  {id:"Edição de Vídeo",icon:"video",desc:"Edição, motion e pós-produção"},
+  {id:"Consultoria",icon:"award",desc:"Estratégia e assessoria especializada"},
+  {id:"Coaching & Mentoria",icon:"lightbulb",desc:"Desenvolvimento e acompanhamento"},
+  {id:"Eventos",icon:"calendar",desc:"Planejamento e produção de eventos"},
+  {id:"Empresarial",icon:"briefcase",desc:"Soluções corporativas e B2B"},
+];
+
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,6);
+const load = (k,d) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch(e){ return d; } };
+const Icon = ({n,s=18,c}) => <i data-lucide={n} style={{width:s,height:s,color:c,flexShrink:0}}></i>;
+
+/* ─── STYLES ─── */
+const card = {background:"#fff",border:`1px solid ${C.border}`,borderRadius:15,padding:22,boxShadow:"0 1px 4px rgba(15,23,42,.05)"};
+const inp = {width:"100%",padding:"11px 13px",border:`1px solid ${C.border}`,borderRadius:10,fontSize:14.5,outline:"none",background:"#fff",boxSizing:"border-box"};
+const lab = {display:"block",fontSize:12.5,fontWeight:600,color:C.textSec,marginBottom:5};
+const btnP = {background:C.secondary,color:"#fff",border:"none",padding:"11px 20px",borderRadius:10,fontSize:14.5,fontWeight:600,cursor:"pointer"};
+const btnG = {background:"#fff",color:C.text,border:`1px solid ${C.border}`,padding:"11px 18px",borderRadius:10,fontSize:14.5,fontWeight:600,cursor:"pointer"};
+const btnWA = {background:"#25D366",color:"#fff",border:"none",padding:"11px 20px",borderRadius:10,fontSize:14.5,fontWeight:600,cursor:"pointer"};
+const rowG = {display:"grid",gridTemplateColumns:"1fr 1fr",gap:14};
+
+/* ─── APP ─── */
+function App(){
+  const [view,setView] = useState("dashboard");
+  const [proposals,setProposals] = useState(()=>load("propoai_proposals",[]));
+  const [settings,setSettings] = useState(()=>load("propoai_settings",{companyName:"Sua Empresa",logo:"",brandColor:C.primary,email:"",phone:"",whatsapp:""}));
+  const [current,setCurrent] = useState(null);
+  const [menuOpen,setMenuOpen] = useState(false);
+  const isMobile = window.innerWidth < 860;
+
+  useEffect(()=>{ if(window.lucide) window.lucide.createIcons(); });
+  useEffect(()=>{ try{ localStorage.setItem("propoai_proposals",JSON.stringify(proposals)); }catch(e){} },[proposals]);
+  useEffect(()=>{ try{ localStorage.setItem("propoai_settings",JSON.stringify(settings)); }catch(e){} },[settings]);
+
+  const saveProposal = (p) => {
+    setProposals(prev => prev.some(x=>x.id===p.id) ? prev.map(x=>x.id===p.id?p:x) : [p,...prev]);
+    setCurrent(p);
+  };
+  const delProposal = (id) => setProposals(prev=>prev.filter(x=>x.id!==id));
+  const openView = (p,track) => {
+    if(track){
+      const up={...p,views:(p.views||0)+1,lastViewed:Date.now()};
+      setProposals(prev=>prev.map(x=>x.id===p.id?up:x));
+      setCurrent(up);
+    } else setCurrent(p);
+  };
+
+  const nav = [
+    {id:"dashboard",label:"Dashboard",icon:"layout-dashboard"},
+    {id:"new",label:"Nova Proposta",icon:"plus"},
+    {id:"proposals",label:"Minhas Propostas",icon:"folder-open"},
+    {id:"templates",label:"Templates",icon:"layout-template"},
+    {id:"settings",label:"Configurações",icon:"settings"},
+  ];
+
+  if(view==="view" && current)
+    return <ViewDoc proposal={current} settings={settings} back={()=>setView("proposals")} publish={saveProposal}/>;
+
+  return (
+    <div style={{display:"flex",minHeight:"100vh"}}>
+      {menuOpen && <div className="noprint" onClick={()=>setMenuOpen(false)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,.4)",zIndex:40}}/>}
+
+      {/* SIDEBAR */}
+      <aside className="noprint" style={{
+        width:252,background:C.sidebar,padding:"22px 14px",
+        position:isMobile?"fixed":"sticky",top:0,height:"100vh",
+        flexShrink:0,display:"flex",flexDirection:"column",zIndex:isMobile?41:1,
+        transform:isMobile?(menuOpen?"translateX(0)":"translateX(-110%"):"translateX(0)",
+        transition:"transform .25s",
+        boxShadow:isMobile&&menuOpen?"0 20px 60px rgba(0,0,0,.5)":"none"
+      }}>
+        <div style={{display:"flex",alignItems:"center",gap:9,padding:"0 6px",marginBottom:28}}>
+          <div style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,.15)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+            <Icon n="sparkles" c="#93C5FD" s={20}/>
+          </div>
+          <span style={{fontSize:22,fontWeight:800,color:"#fff",letterSpacing:"-0.5px"}}>Propo<span style={{color:"#60A5FA"}}>AI</span></span>
+        </div>
+
+        <div style={{fontSize:10,fontWeight:700,color:"rgba(255,255,255,.35)",letterSpacing:".1em",margin:"0 8px 8px"}}>MENU</div>
+        <nav style={{display:"flex",flexDirection:"column",gap:4}}>
+          {nav.map(it=>{
+            const a = view===it.id||(view==="editor"&&it.id==="proposals");
+            return <button key={it.id} onClick={()=>{setView(it.id);setMenuOpen(false);}} className="hov"
+              style={{display:"flex",alignItems:"center",gap:12,padding:"12px 14px",borderRadius:11,border:"none",
+                cursor:"pointer",background:a?"rgba(255,255,255,.15)":"transparent",
+                color:"#fff",fontWeight:a?700:500,fontSize:14.5,textAlign:"left",
+                borderLeft:a?`3px solid #60A5FA`:"3px solid transparent"}}>
+              <Icon n={it.icon} c={a?"#93C5FD":"rgba(255,255,255,.6)"} s={18}/>{it.label}
+            </button>;
+          })}
+        </nav>
+
+        <div style={{marginTop:"auto"}}>
+          <button onClick={()=>{setView("new");setMenuOpen(false);}} className="hov"
+            style={{width:"100%",background:"linear-gradient(135deg,#2563EB,#3B82F6)",color:"#fff",border:"none",
+              padding:"13px",borderRadius:11,fontSize:15,fontWeight:700,cursor:"pointer",
+              display:"flex",alignItems:"center",justifyContent:"center",gap:7,
+              boxShadow:"0 4px 16px rgba(59,130,246,.4)"}}>
+            <Icon n="plus" c="#fff" s={18}/> Nova Proposta
+          </button>
+        </div>
+      </aside>
+
+      {/* MAIN */}
+      <div style={{flex:1,minWidth:0,display:"flex",flexDirection:"column"}}>
+        <header className="noprint" style={{background:"#fff",borderBottom:`1px solid ${C.border}`,
+          padding:"14px clamp(16px,4vw,36px)",display:"flex",alignItems:"center",
+          justifyContent:"space-between",position:"sticky",top:0,zIndex:30,
+          boxShadow:"0 1px 3px rgba(15,23,42,.04)"}}>
+          <div style={{display:"flex",alignItems:"center",gap:12}}>
+            {isMobile && <button onClick={()=>setMenuOpen(true)} className="hov"
+              style={{display:"inline-flex",alignItems:"center",gap:7,background:C.sidebar,color:"#fff",
+                border:"none",borderRadius:10,padding:"9px 14px",cursor:"pointer",fontWeight:700,fontSize:14}}>
+              <Icon n="menu" s={20} c="#fff"/> Menu
+            </button>}
+            <strong style={{fontSize:19,color:C.text,letterSpacing:"-0.3px"}}>
+              {nav.find(n=>n.id===view)?.label || "Editor"}
+            </strong>
+          </div>
+          <div style={{display:"flex",alignItems:"center",gap:10}}>
+            <span style={{fontSize:13.5,color:C.textSec,fontWeight:600}}>{settings.companyName}</span>
+            <div style={{width:36,height:36,borderRadius:"50%",
+              background:`linear-gradient(135deg,${C.primary},${C.accent})`,
+              display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:700,overflow:"hidden"}}>
+              {settings.logo
+                ? <img src={settings.logo} style={{width:"100%",height:"100%",objectFit:"cover"}}/>
+                : (settings.companyName?.[0]||"P")}
+            </div>
+          </div>
+        </header>
+
+        <main style={{flex:1,padding:"26px clamp(16px,4vw,36px)"}}>
+          {view==="dashboard" && <Dashboard proposals={proposals} go={setView} open={p=>{setCurrent(p);setView("editor");}}/>}
+          {view==="new" && <NewProposal settings={settings} onCreated={p=>{saveProposal(p);setView("editor");}}/>}
+          {view==="proposals" && <MyProposals proposals={proposals} edit={p=>{setCurrent(p);setView("editor");}} viewDoc={p=>{openView(p,false);setView("view");}} del={delProposal} go={setView}/>}
+          {view==="templates" && <Templates go={setView}/>}
+          {view==="settings" && <Settings settings={settings} setSettings={setSettings}/>}
+          {view==="editor" && current && <Editor proposal={current} settings={settings} save={saveProposal} viewDoc={p=>{saveProposal(p);setCurrent(p);setView("view");}} back={()=>setView("proposals")}/>}
+        </main>
+      </div>
+    </div>
+  );
+}
+
+/* ─── DASHBOARD ─── */
+function Dashboard({proposals,go,open}){
+  const total=proposals.length, viewed=proposals.filter(p=>(p.views||0)>0).length;
+  const approved=proposals.filter(p=>p.status==="approved").length;
+  const rate=total?Math.round(approved/total*100):0;
+  const stats=[
+    ["Total de propostas",total,"file-text",C.secondary],
+    ["Visualizadas",viewed,"eye","#8B5CF6"],
+    ["Aprovadas",approved,"check-circle","#10B981"],
+    ["Taxa de aprovação",rate+"%","trending-up",C.success]
+  ];
+  const recent=[...proposals].sort((a,b)=>b.createdAt-a.createdAt).slice(0,6);
+  return <div className="fu" style={{maxWidth:1000}}>
+    {total===0 && <div style={{...card,padding:"28px 30px",marginBottom:22,
+      background:`linear-gradient(135deg,${C.primary} 0%,#1D4ED8 100%)`,color:"#fff",border:"none",
+      boxShadow:"0 8px 30px rgba(30,58,138,.3)"}}>
+      <h2 style={{margin:"0 0 8px",fontSize:22,fontWeight:800}}>Bem-vindo ao PropoAI 👋</h2>
+      <p style={{margin:0,opacity:.9,fontSize:15,lineHeight:1.65,maxWidth:560}}>
+        Transforme informações simples em propostas comerciais profissionais em minutos.
+        A IA escreve, você personaliza com sua marca e impressiona seus clientes.
+      </p>
+      <button onClick={()=>go("new")} className="hov" style={{marginTop:20,background:"#fff",color:C.primary,border:"none",padding:"12px 22px",borderRadius:10,fontWeight:700,cursor:"pointer",display:"inline-flex",alignItems:"center",gap:7,boxShadow:"0 4px 12px rgba(0,0,0,.15)"}}>
+        <Icon n="sparkles" c={C.primary} s={17}/> Criar minha primeira proposta
+      </button>
+    </div>}
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(180px,1fr))",gap:14,marginBottom:22}}>
+      {stats.map((s,i)=><div key={i} className="hov" style={{...card,padding:20}}>
+        <div style={{width:42,height:42,borderRadius:12,background:`${s[3]}18`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <Icon n={s[2]} c={s[3]} s={20}/>
+        </div>
+        <div style={{fontSize:32,fontWeight:800,marginTop:14,letterSpacing:"-1px"}}>{s[1]}</div>
+        <div style={{color:C.textSec,fontSize:13.5,marginTop:2}}>{s[0]}</div>
+      </div>)}
+    </div>
+    <div style={{...card,padding:0,overflow:"hidden"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"18px 22px",borderBottom:`1px solid ${C.border}`}}>
+        <strong style={{fontSize:15.5}}>Propostas recentes</strong>
+        <button onClick={()=>go("proposals")} style={{background:"none",border:"none",color:C.secondary,fontWeight:600,fontSize:13.5,cursor:"pointer"}}>Ver todas →</button>
+      </div>
+      {recent.length===0
+        ? <div style={{padding:"52px 20px",textAlign:"center",color:C.textSec}}>
+            Você ainda não criou propostas.<br/>
+            <button onClick={()=>go("new")} className="hov" style={{...btnP,marginTop:16}}>Criar primeira proposta</button>
+          </div>
+        : recent.map(p=><div key={p.id} onClick={()=>open(p)} className="hov"
+            style={{display:"flex",justifyContent:"space-between",alignItems:"center",
+              padding:"14px 22px",borderBottom:`1px solid ${C.border}`,cursor:"pointer"}}>
+            <div style={{display:"flex",alignItems:"center",gap:13}}>
+              <div style={{width:40,height:40,borderRadius:10,background:C.bgSec,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <Icon n="file-text" c={C.secondary}/>
+              </div>
+              <div>
+                <div style={{fontWeight:700,fontSize:14.5}}>{p.content?.coverTitle||p.service}</div>
+                <div style={{color:C.textSec,fontSize:12.5}}>{p.clientName||"—"} · {new Date(p.createdAt).toLocaleDateString("pt-BR")}</div>
+              </div>
+            </div>
+            <Badge s={p.status} v={p.views}/>
+          </div>)}
+    </div>
+  </div>;
+}
+
+function Badge({s,v}){
+  const m={draft:["Rascunho",C.textSec,C.bgSec],sent:["Enviada",C.secondary,`${C.accent}18`],approved:["Aprovada",C.success,`${C.success}14`]};
+  const x=m[s]||m.draft;
+  return <div style={{display:"flex",alignItems:"center",gap:10}}>
+    {v>0 && <span style={{fontSize:12,color:C.textSec,display:"inline-flex",alignItems:"center",gap:3}}><Icon n="eye" s={13}/> {v}</span>}
+    <span style={{padding:"5px 11px",borderRadius:100,fontSize:12,fontWeight:700,color:x[1],background:x[2]}}>{x[0]}</span>
+  </div>;
+}
+
+/* ─── NEW PROPOSAL ─── */
+function NewProposal({settings,onCreated}){
+  const [f,setF] = useState({clientName:"",company:"",template:"Marketing Digital",service:"",objective:"",scope:"",deadline:"",value:"",notes:""});
+  const [loading,setLoading] = useState(false);
+  const [err,setErr] = useState("");
+  const set = k => e => setF({...f,[k]:e.target.value});
+
+  const gen = async() => {
+    if(!f.service.trim()){ setErr("Informe ao menos o serviço para gerar a proposta."); return; }
+    setErr(""); setLoading(true);
+    try{
+      const res = await fetch("/.netlify/functions/generate",{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({...f,companyName:settings.companyName})
+      });
+      if(!res.ok) throw new Error("status "+res.status);
+      const data = await res.json();
+      if(!data.content) throw new Error("sem content");
+      onCreated({
+        id:uid(),...f,
+        companyName:settings.companyName,
+        createdAt:Date.now(),views:0,status:"draft",
+        content:data.content
+      });
+    }catch(e){
+      setLoading(false);
+      setErr("Não foi possível gerar agora. Verifique se o app está publicado no Netlify com a chave da API configurada.");
+    }
+  };
+
+  if(loading) return (
+    <div className="fu" style={{textAlign:"center",marginTop:70}}>
+      <div className="spin" style={{margin:"0 auto"}}/>
+      <h3 style={{marginTop:22,fontSize:20,fontWeight:800}}>Gerando sua proposta com IA…</h3>
+      <p style={{color:C.textSec,fontSize:15}}>Estamos redigindo um documento profissional e persuasivo para você.<br/>Leva só alguns segundos.</p>
+      <div style={{marginTop:20,height:4,background:C.border,borderRadius:100,overflow:"hidden",maxWidth:260,margin:"20px auto 0"}}>
+        <div style={{height:"100%",width:"40%",background:`linear-gradient(90deg,${C.secondary},${C.accent})`,borderRadius:100,animation:"sl 1.5s ease infinite"}}/>
+      </div>
+    </div>
+  );
+
+  return <div className="fu" style={{maxWidth:720}}>
+    <h2 style={{margin:"0 0 4px",fontSize:22,fontWeight:800,letterSpacing:"-0.5px"}}>Crie uma proposta profissional em minutos</h2>
+    <p style={{color:C.textSec,marginTop:0,marginBottom:22,fontSize:14.5,lineHeight:1.65}}>
+      Preencha as informações do projeto e a IA monta uma apresentação completa.<br/>
+      Quanto mais detalhes, mais persuasiva e personalizada fica a proposta.
+    </p>
+    <div style={{...card,padding:28}}>
+      <Field l="Categoria / Template">
+        <select value={f.template} onChange={set("template")} style={inp}>
+          {TEMPLATES.map(t=><option key={t.id}>{t.id}</option>)}
+        </select>
+      </Field>
+      <div style={rowG}>
+        <Field l="Nome do Cliente"><input value={f.clientName} onChange={set("clientName")} style={inp} placeholder="Ex.: João Silva"/></Field>
+        <Field l="Empresa"><input value={f.company} onChange={set("company")} style={inp} placeholder="Ex.: Acme Ltda"/></Field>
+      </div>
+      <Field l="Serviço *"><input value={f.service} onChange={set("service")} style={inp} placeholder="Ex.: Gestão de tráfego pago para e-commerce"/></Field>
+      <Field l="Objetivo"><input value={f.objective} onChange={set("objective")} style={inp} placeholder="Ex.: Aumentar vendas online em 40%"/></Field>
+      <Field l="Escopo"><textarea value={f.scope} onChange={set("scope")} rows={3} style={{...inp,resize:"vertical"}} placeholder="Descreva o que será entregue..."/></Field>
+      <div style={rowG}>
+        <Field l="Prazo"><input value={f.deadline} onChange={set("deadline")} style={inp} placeholder="Ex.: 60 dias"/></Field>
+        <Field l="Valor do Projeto"><input value={f.value} onChange={set("value")} style={inp} placeholder="Ex.: R$ 5.000/mês"/></Field>
+      </div>
+      <Field l="Observações para a IA"><textarea value={f.notes} onChange={set("notes")} rows={2} style={{...inp,resize:"vertical"}} placeholder="Informações extras, tom, destaques..."/></Field>
+      {err && <div style={{background:"#FEF2F2",color:"#DC2626",padding:"12px 14px",borderRadius:10,fontSize:13.5,marginBottom:14,display:"flex",alignItems:"flex-start",gap:8}}>
+        <Icon n="alert-circle" c="#DC2626" s={16}/> {err}
+      </div>}
+      <button onClick={gen} className="hov" style={{...btnP,width:"100%",padding:"15px",fontSize:16,display:"flex",alignItems:"center",justifyContent:"center",gap:9,boxShadow:`0 4px 16px ${C.secondary}40`}}>
+        <Icon n="sparkles" c="#fff" s={19}/> Gerar Proposta com IA
+      </button>
+    </div>
+  </div>;
+}
+
+function Field({l,children}){ return <div style={{marginBottom:16}}><label style={{display:"block",fontSize:13,fontWeight:600,color:C.textSec,marginBottom:6}}>{l}</label>{children}</div>; }
+
+/* ─── MY PROPOSALS ─── */
+function MyProposals({proposals,edit,viewDoc,del,go}){
+  const [q,setQ] = useState("");
+  const list = proposals
+    .filter(p=>`${p.clientName} ${p.company} ${p.service}`.toLowerCase().includes(q.toLowerCase()))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  return <div className="fu" style={{maxWidth:1000}}>
+    <div style={{display:"flex",gap:12,marginBottom:20,flexWrap:"wrap"}}>
+      <input value={q} onChange={e=>setQ(e.target.value)} placeholder="Buscar proposta..." style={{...inp,maxWidth:320}}/>
+      <button onClick={()=>go("new")} className="hov" style={{...btnP,display:"inline-flex",alignItems:"center",gap:7}}>
+        <Icon n="plus" c="#fff" s={17}/> Nova
+      </button>
+    </div>
+    {list.length===0
+      ? <div style={{...card,padding:"60px 24px",textAlign:"center",color:C.textSec}}>
+          <div style={{width:58,height:58,borderRadius:14,background:C.bgSec,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 16px"}}><Icon n="file-text" c={C.textSec} s={26}/></div>
+          <strong style={{color:C.text,fontSize:17,display:"block",marginBottom:8}}>Nenhuma proposta criada ainda</strong>
+          Comece criando sua primeira proposta profissional.
+          <br/><button onClick={()=>go("new")} className="hov" style={{...btnP,marginTop:18}}>Criar primeira proposta</button>
+        </div>
+      : <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(290px,1fr))",gap:16}}>
+          {list.map(p=><div key={p.id} className="hov" style={{...card,padding:20,display:"flex",flexDirection:"column"}}>
+            <div style={{display:"flex",justifyContent:"space-between",marginBottom:12}}>
+              <div style={{width:40,height:40,borderRadius:10,background:`linear-gradient(135deg,${C.primary},${C.accent})`,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <Icon n="file-text" c="#fff"/>
+              </div>
+              <Badge s={p.status} v={p.views}/>
+            </div>
+            <strong style={{fontSize:15}}>{p.content?.coverTitle||p.service}</strong>
+            <div style={{color:C.textSec,fontSize:13,margin:"4px 0 16px"}}>{p.clientName||"Sem cliente"} · {new Date(p.createdAt).toLocaleDateString("pt-BR")}</div>
+            <div style={{display:"flex",gap:8,marginTop:"auto"}}>
+              <button onClick={()=>edit(p)} className="hov" style={{...btnG,flex:1,fontSize:13,padding:"9px 0"}}>Editar</button>
+              <button onClick={()=>viewDoc(p)} className="hov" style={{...btnP,flex:1,fontSize:13,padding:"9px 0"}}>Ver</button>
+              <button onClick={()=>{ if(confirm("Excluir esta proposta?")) del(p.id); }} className="hov" style={{...btnG,padding:"9px 11px",color:"#DC2626",borderColor:"#FECACA"}}>
+                <Icon n="trash-2" s={15} c="#DC2626"/>
+              </button>
+            </div>
+          </div>)}
+        </div>}
+  </div>;
+}
+
+/* ─── TEMPLATES ─── */
+function Templates({go}){
+  return <div className="fu" style={{maxWidth:1000}}>
+    <p style={{color:C.textSec,marginTop:0,marginBottom:20,fontSize:14.5}}>Escolha um ponto de partida. A IA adapta o conteúdo ao seu serviço.</p>
+    <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(240px,1fr))",gap:14}}>
+      {TEMPLATES.map(t=><div key={t.id} onClick={()=>go("new")} className="hov" style={{...card,padding:22,cursor:"pointer"}}>
+        <div style={{width:46,height:46,borderRadius:12,background:`${C.accent}14`,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:14}}>
+          <Icon n={t.icon} c={C.secondary} s={22}/>
+        </div>
+        <h3 style={{fontSize:15.5,fontWeight:700,margin:"0 0 5px"}}>{t.id}</h3>
+        <p style={{color:C.textSec,fontSize:13.5,lineHeight:1.5,margin:"0 0 12px"}}>{t.desc}</p>
+        <span style={{color:C.secondary,fontWeight:600,fontSize:13.5}}>Usar template →</span>
+      </div>)}
+    </div>
+  </div>;
+}
+
+/* ─── SETTINGS ─── */
+function Settings({settings,setSettings}){
+  const [s,setS] = useState(settings);
+  const [ok,setOk] = useState(false);
+  const fr = useRef();
+  const logo = e => {
+    const file=e.target.files?.[0]; if(!file)return;
+    const r=new FileReader(); r.onload=()=>setS({...s,logo:r.result}); r.readAsDataURL(file);
+  };
+  return <div className="fu" style={{maxWidth:560}}>
+    <div style={{...card,padding:28}}>
+      <h3 style={{marginTop:0,fontSize:17,fontWeight:800}}>Identidade visual</h3>
+      <p style={{color:C.textSec,fontSize:14,marginTop:0,marginBottom:22}}>Personalize a marca exibida nas suas propostas.</p>
+      <Field l="Logo">
+        <div style={{display:"flex",alignItems:"center",gap:14}}>
+          <div style={{width:62,height:62,borderRadius:12,background:C.bgSec,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",overflow:"hidden"}}>
+            {s.logo?<img src={s.logo} style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<Icon n="image" c={C.textSec} s={24}/>}
+          </div>
+          <button onClick={()=>fr.current.click()} style={btnG}>Enviar logo</button>
+          {s.logo && <button onClick={()=>setS({...s,logo:""})} style={{...btnG,color:"#DC2626",borderColor:"#FECACA"}}>Remover</button>}
+          <input ref={fr} type="file" accept="image/*" onChange={logo} style={{display:"none"}}/>
+        </div>
+      </Field>
+      <Field l="Nome da empresa"><input value={s.companyName} onChange={e=>setS({...s,companyName:e.target.value})} style={inp}/></Field>
+      <Field l="Cor da marca">
+        <div style={{display:"flex",gap:10,alignItems:"center"}}>
+          <input type="color" value={s.brandColor} onChange={e=>setS({...s,brandColor:e.target.value})} style={{width:50,height:40,border:`1px solid ${C.border}`,borderRadius:10,padding:3,cursor:"pointer"}}/>
+          <input value={s.brandColor} onChange={e=>setS({...s,brandColor:e.target.value})} style={{...inp,maxWidth:150}}/>
+        </div>
+      </Field>
+      <div style={rowG}>
+        <Field l="E-mail"><input value={s.email||""} onChange={e=>setS({...s,email:e.target.value})} style={inp} placeholder="contato@empresa.com"/></Field>
+        <Field l="Telefone"><input value={s.phone||""} onChange={e=>setS({...s,phone:e.target.value})} style={inp} placeholder="(11) 99999-9999"/></Field>
+      </div>
+      <Field l="WhatsApp (com DDD, ex: 5511999999999)">
+        <input value={s.whatsapp||""} onChange={e=>setS({...s,whatsapp:e.target.value})} style={inp} placeholder="5511999999999"/>
+      </Field>
+      <button onClick={()=>{setSettings(s);setOk(true);setTimeout(()=>setOk(false),1800);}} className="hov"
+        style={{...btnP,display:"inline-flex",alignItems:"center",gap:7}}>
+        {ok?<><Icon n="check" c="#fff" s={16}/> Salvo!</>:"Salvar configurações"}
+      </button>
+    </div>
+  </div>;
+}
+
+/* ─── EDITOR ─── */
+function Editor({proposal,settings,save,viewDoc,back}){
+  const [p,setP] = useState(proposal);
+  useEffect(()=>setP(proposal),[proposal.id]);
+  const c = p.content||{};
+  const setC = (k,v) => setP({...p,content:{...p.content,[k]:v}});
+  const [ok,setOk] = useState(false);
+
+  return <div className="fu" style={{maxWidth:1100}}>
+    <div style={{display:"flex",justifyContent:"space-between",marginBottom:16,flexWrap:"wrap",gap:10}}>
+      <button onClick={back} style={{...btnG,display:"inline-flex",alignItems:"center",gap:6}}><Icon n="chevron-left" s={16}/> Voltar</button>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+        <select value={p.status} onChange={e=>setP({...p,status:e.target.value})} style={{...inp,maxWidth:140,padding:"9px 12px"}}>
+          <option value="draft">Rascunho</option><option value="sent">Enviada</option><option value="approved">Aprovada</option>
+        </select>
+        <button onClick={()=>{save(p);setOk(true);setTimeout(()=>setOk(false),1600);}} className="hov" style={{...btnG,display:"inline-flex",alignItems:"center",gap:6}}>
+          {ok?<><Icon n="check" s={15}/> Salvo</>:"Salvar"}
+        </button>
+        <button onClick={()=>viewDoc(p)} className="hov" style={{...btnP,display:"inline-flex",alignItems:"center",gap:7}}>
+          <Icon n="eye" c="#fff" s={16}/> Ver / Compartilhar
+        </button>
+      </div>
+    </div>
+    <div style={{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1.1fr)",gap:18,alignItems:"start"}}>
+      <div style={{...card,padding:22}}>
+        <h4 style={{marginTop:0,fontSize:15,fontWeight:700}}>Editar conteúdo</h4>
+        <EA l="Título" v={c.coverTitle} on={v=>setC("coverTitle",v)}/>
+        <EF l="Subtítulo" v={c.coverSubtitle} on={v=>setC("coverSubtitle",v)}/>
+        <EA l="Apresentação" v={c.presentation} on={v=>setC("presentation",v)}/>
+        <EL l="Objetivos" items={c.objectives} on={v=>setC("objectives",v)}/>
+        <EL l="Escopo" items={c.scope} on={v=>setC("scope",v)}/>
+        <EF l="Introdução do Investimento" v={c.investmentIntro} on={v=>setC("investmentIntro",v)}/>
+        <EF l="Investimento total" v={c.investmentTotal} on={v=>setC("investmentTotal",v)}/>
+        <EL l="Benefícios" items={c.benefits} on={v=>setC("benefits",v)}/>
+        <EL l="Diferenciais" items={c.differentials} on={v=>setC("differentials",v)}/>
+        <EL l="Próximos passos" items={c.nextSteps} on={v=>setC("nextSteps",v)}/>
+        <EA l="Encerramento" v={c.closing} on={v=>setC("closing",v)}/>
+      </div>
+      <div style={{...card,padding:0,overflow:"hidden",position:"sticky",top:88}}>
+        <div style={{padding:"11px 16px",borderBottom:`1px solid ${C.border}`,fontSize:13,fontWeight:600,color:C.textSec}}>Pré-visualização</div>
+        <div style={{maxHeight:"70vh",overflow:"auto"}}><Doc proposal={p} settings={settings} compact/></div>
+      </div>
+    </div>
+  </div>;
+}
+
+function EF({l,v,on}){ return <div style={{marginBottom:12}}><label style={lab}>{l}</label><input value={v||""} onChange={e=>on(e.target.value)} style={inp}/></div>; }
+function EA({l,v,on}){ return <div style={{marginBottom:12}}><label style={lab}>{l}</label><textarea value={v||""} onChange={e=>on(e.target.value)} rows={3} style={{...inp,resize:"vertical"}}/></div>; }
+function EL({l,items=[],on}){
+  const u=(i,v)=>{const a=[...(items||[])];a[i]=v;on(a);};
+  return <div style={{marginBottom:12}}>
+    <label style={lab}>{l}</label>
+    {(items||[]).map((it,i)=><div key={i} style={{display:"flex",gap:6,marginBottom:6}}>
+      <input value={it} onChange={e=>u(i,e.target.value)} style={{...inp,padding:"8px 11px",fontSize:13.5}}/>
+      <button onClick={()=>on(items.filter((_,x)=>x!==i))} style={{...btnG,padding:"0 10px",color:"#DC2626",borderColor:"#FECACA"}}>
+        <Icon n="x" s={14} c="#DC2626"/>
+      </button>
+    </div>)}
+    <button onClick={()=>on([...(items||[]),""])} style={{background:"none",border:"none",color:C.secondary,fontSize:13,fontWeight:600,cursor:"pointer"}}>+ Adicionar</button>
+  </div>;
+}
+
+/* ─── VIEW DOC ─── */
+function ViewDoc({proposal,settings,back,publish}){
+  const [share,setShare] = useState(false);
+  const [copied,setCopied] = useState(false);
+
+  const link = `${window.location.origin}${window.location.pathname}#proposta-${proposal.id}`;
+
+  const copy = () => {
+    navigator.clipboard?.writeText(link).catch(()=>{});
+    setCopied(true); setTimeout(()=>setCopied(false),1800);
+  };
+
+  // WhatsApp: manda link + nome da proposta
+  const sendWhatsApp = () => {
+    const title = proposal.content?.coverTitle || proposal.service;
+    const client = proposal.clientName ? ` para ${proposal.clientName}` : "";
+    const msg = `Olá! Segue a proposta comercial *"${title}"*${client}. Acesse pelo link: ${link}`;
+    const phone = settings.whatsapp ? settings.whatsapp.replace(/\D/g,"") : "";
+    const url = phone
+      ? `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`
+      : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+    window.open(url, "_blank");
+  };
+
+  const downloadPDF = () => window.print();
+
+  return <div style={{padding:"20px clamp(16px,4vw,36px)"}}>
+    <div className="noprint" style={{display:"flex",justifyContent:"space-between",marginBottom:18,flexWrap:"wrap",gap:10}}>
+      <button onClick={back} style={{...btnG,display:"inline-flex",alignItems:"center",gap:6}}>
+        <Icon n="chevron-left" s={16}/> Voltar
+      </button>
+      <div style={{display:"flex",alignItems:"center",gap:8,fontSize:13,color:C.textSec}}>
+        <Icon n="eye" s={15}/> {proposal.views||0} visualizações
+      </div>
+      <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
+        <button onClick={()=>setShare(true)} className="hov" style={{...btnG,display:"inline-flex",alignItems:"center",gap:6}}>
+          <Icon n="share-2" s={16}/> Compartilhar
+        </button>
+        <button onClick={sendWhatsApp} className="hov" style={{...btnWA,display:"inline-flex",alignItems:"center",gap:7}}>
+          <Icon n="send" c="#fff" s={16}/> WhatsApp
+        </button>
+        <button onClick={downloadPDF} className="hov" style={{...btnP,display:"inline-flex",alignItems:"center",gap:7}}>
+          <Icon n="download" c="#fff" s={16}/> Baixar PDF
+        </button>
+      </div>
+    </div>
+
+    <div id="wrap" style={{maxWidth:800,margin:"0 auto",background:"#fff",borderRadius:16,boxShadow:"0 8px 40px rgba(15,23,42,.10)",overflow:"hidden"}}>
+      <Doc proposal={proposal} settings={settings}/>
+    </div>
+
+    {/* MODAL COMPARTILHAR */}
+    {share && <div className="noprint" onClick={()=>setShare(false)}
+      style={{position:"fixed",inset:0,background:"rgba(15,23,42,.5)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,padding:20}}>
+      <div onClick={e=>e.stopPropagation()}
+        style={{background:"#fff",borderRadius:18,padding:28,maxWidth:460,width:"100%",boxShadow:"0 20px 60px rgba(0,0,0,.25)"}}>
+        <h3 style={{margin:"0 0 6px",fontSize:18,fontWeight:800}}>Compartilhar proposta</h3>
+        <p style={{color:C.textSec,fontSize:14,marginTop:0,marginBottom:18}}>Envie diretamente ao seu cliente:</p>
+
+        <div style={{display:"flex",gap:8,marginBottom:12}}>
+          <input readOnly value={link} style={{...inp,fontSize:12.5}}/>
+          <button onClick={copy} className="hov" style={{...btnP,whiteSpace:"nowrap",minWidth:90}}>
+            {copied?"✓ Copiado":"Copiar"}
+          </button>
+        </div>
+
+        <button onClick={sendWhatsApp} className="hov"
+          style={{...btnWA,width:"100%",marginBottom:10,display:"inline-flex",alignItems:"center",justifyContent:"center",gap:8,fontSize:15,padding:"13px"}}>
+          <Icon n="send" c="#fff" s={18}/> Enviar pelo WhatsApp
+        </button>
+
+        <button onClick={downloadPDF} className="hov"
+          style={{...btnG,width:"100%",display:"inline-flex",alignItems:"center",justifyContent:"center",gap:7}}>
+          <Icon n="download" s={16}/> Baixar como PDF
+        </button>
+
+        <button onClick={()=>setShare(false)}
+          style={{...btnG,width:"100%",marginTop:10,color:C.textSec,border:"none",fontSize:13}}>
+          Fechar
+        </button>
+      </div>
+    </div>}
+  </div>;
+}
+
+/* ─── DOC (proposta renderizada) ─── */
+function Doc({proposal,settings,compact}){
+  const c = proposal.content||{};
+  const brand = settings.brandColor||C.primary;
+  const pad = compact?20:52;
+
+  const SecTitle = ({n,children}) => (
+    <div style={{display:"flex",alignItems:"center",gap:10,margin:compact?"22px 0 10px":"38px 0 15px"}}>
+      <span style={{fontSize:11,fontWeight:800,color:brand,letterSpacing:".05em"}}>{n}</span>
+      <h2 style={{fontSize:compact?16:22,fontWeight:800,margin:0}}>{children}</h2>
+    </div>
+  );
+
+  const Li = ({items,mark}) => (
+    <div style={{display:"flex",flexDirection:"column",gap:8}}>
+      {(items||[]).map((it,i)=>(
+        <div key={i} style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+          {mark
+            ? <Icon n="check" c={C.success} s={compact?15:18}/>
+            : <span style={{width:6,height:6,borderRadius:"50%",background:brand,marginTop:7,flexShrink:0}}/>}
+          <span style={{fontSize:compact?13.5:15,color:"#334155",lineHeight:1.65}}>{it}</span>
+        </div>
+      ))}
+    </div>
+  );
+
+  return <div>
+    {/* HEADER */}
+    <div style={{background:`linear-gradient(135deg,${brand} 0%,#2563EB 100%)`,color:"#fff",padding:`${pad}px ${pad}px ${pad+6}px`}}>
+      <div style={{marginBottom:compact?22:44}}>
+        {settings.logo
+          ? <img src={settings.logo} style={{height:compact?24:32,borderRadius:6,background:"rgba(255,255,255,.95)",padding:3}}/>
+          : <strong style={{fontSize:compact?14:17,opacity:.9}}>{settings.companyName}</strong>}
+      </div>
+      <span style={{display:"inline-block",padding:"4px 12px",background:"rgba(255,255,255,.2)",borderRadius:100,fontSize:compact?11:12.5,fontWeight:600,marginBottom:12}}>
+        {proposal.template}
+      </span>
+      <h1 style={{fontSize:compact?22:38,fontWeight:800,lineHeight:1.1,margin:0,letterSpacing:"-1px"}}>
+        {c.coverTitle||proposal.service}
+      </h1>
+      {c.coverSubtitle && <p style={{fontSize:compact?14:18,opacity:.9,marginTop:10,marginBottom:0}}>{c.coverSubtitle}</p>}
+      <div style={{marginTop:compact?20:36,fontSize:compact?12.5:14.5,opacity:.85}}>
+        <div><b>Preparado para:</b> {proposal.clientName||"—"}{proposal.company?` · ${proposal.company}`:""}</div>
+        <div style={{marginTop:4}}><b>Data:</b> {new Date(proposal.createdAt).toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"})}</div>
+      </div>
+    </div>
+
+    {/* BODY */}
+    <div style={{padding:`${compact?4:14}px ${pad}px ${pad}px`}}>
+      {c.presentation && <>
+        <SecTitle n="01">Apresentação</SecTitle>
+        {String(c.presentation).split("\n").filter(Boolean).map((x,i)=><p key={i} style={{fontSize:compact?13.5:15,lineHeight:1.75,color:"#334155",margin:"0 0 10px"}}>{x}</p>)}
+      </>}
+
+      {c.objectives?.length>0 && <>
+        <SecTitle n="02">Objetivos</SecTitle>
+        <Li items={c.objectives}/>
+      </>}
+
+      {c.scope?.length>0 && <>
+        <SecTitle n="03">Escopo do Projeto</SecTitle>
+        <Li items={c.scope} mark/>
+      </>}
+
+      {c.timeline?.length>0 && <>
+        <SecTitle n="04">Cronograma</SecTitle>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {c.timeline.map((t,i)=>(
+            <div key={i} style={{display:"flex",gap:14,padding:compact?12:15,background:C.bgSec,borderRadius:11,borderLeft:`3px solid ${brand}`}}>
+              <div style={{minWidth:compact?68:92,flexShrink:0}}>
+                <div style={{fontWeight:700,fontSize:compact?13:14}}>{t.phase}</div>
+                <div style={{fontSize:compact?11:12.5,color:brand,fontWeight:600,marginTop:2}}>{t.duration}</div>
+              </div>
+              <div style={{fontSize:compact?13:14,color:"#475569",lineHeight:1.6}}>{t.description}</div>
+            </div>
+          ))}
+        </div>
+      </>}
+
+      {(c.investmentIntro||c.investmentItems?.length>0||c.investmentTotal) && <>
+        <SecTitle n="05">Investimento</SecTitle>
+        {c.investmentIntro && <p style={{fontSize:compact?13.5:15,lineHeight:1.7,color:"#334155",marginTop:0}}>{c.investmentIntro}</p>}
+        {c.investmentItems?.length>0 && (
+          <div style={{border:`1px solid ${C.border}`,borderRadius:11,overflow:"hidden"}}>
+            {c.investmentItems.map((it,i)=>(
+              <div key={i} style={{display:"flex",justifyContent:"space-between",gap:12,padding:compact?"10px 14px":"13px 17px",borderBottom:`1px solid ${C.border}`,fontSize:compact?13:14.5}}>
+                <span style={{color:"#334155"}}>{it.item}</span><b>{it.value}</b>
+              </div>
+            ))}
+            {c.investmentTotal && (
+              <div style={{display:"flex",justifyContent:"space-between",padding:compact?"12px 14px":"15px 17px",background:`${brand}0e`,fontSize:compact?15:17,fontWeight:800}}>
+                <span>Total</span><span style={{color:brand}}>{c.investmentTotal}</span>
+              </div>
+            )}
+          </div>
+        )}
+      </>}
+
+      {c.benefits?.length>0 && <>
+        <SecTitle n="06">Benefícios</SecTitle>
+        <div style={{display:"grid",gridTemplateColumns:compact?"1fr":"1fr 1fr",gap:10}}>
+          {c.benefits.map((b,i)=>(
+            <div key={i} style={{display:"flex",gap:10,padding:compact?11:14,background:C.bgSec,borderRadius:11}}>
+              <Icon n="check" c={C.success} s={compact?15:17}/>
+              <span style={{fontSize:compact?13:14,color:"#334155"}}>{b}</span>
+            </div>
+          ))}
+        </div>
+      </>}
+
+      {c.differentials?.length>0 && <>
+        <SecTitle n="07">Diferenciais</SecTitle>
+        <Li items={c.differentials}/>
+      </>}
+
+      {c.nextSteps?.length>0 && <>
+        <SecTitle n="08">Próximos Passos</SecTitle>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {c.nextSteps.map((s,i)=>(
+            <div key={i} style={{display:"flex",gap:12,alignItems:"center"}}>
+              <div style={{width:compact?26:30,height:compact?26:30,borderRadius:"50%",background:brand,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:compact?12:14,flexShrink:0}}>{i+1}</div>
+              <span style={{fontSize:compact?13:14.5,color:"#334155"}}>{s}</span>
+            </div>
+          ))}
+        </div>
+      </>}
+
+      {c.closing && (
+        <div style={{marginTop:compact?24:42,padding:compact?18:26,background:`${brand}0c`,borderRadius:14,border:`1px solid ${brand}22`}}>
+          <p style={{fontSize:compact?13.5:15.5,lineHeight:1.75,color:"#1e293b",margin:0,fontWeight:500}}>{c.closing}</p>
+          <div style={{marginTop:16,paddingTop:16,borderTop:`1px solid ${brand}22`,fontSize:compact?12:13.5,color:C.textSec}}>
+            <b style={{color:C.text}}>{settings.companyName}</b>
+            {settings.email && <div>{settings.email}</div>}
+            {settings.phone && <div>{settings.phone}</div>}
+          </div>
+        </div>
+      )}
+    </div>
+  </div>;
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
+</script>
+</body>
+</html>
