@@ -530,6 +530,54 @@ function Settings({settings,setSettings}){
         {ok?<><Icon n="check" c="#fff" s={16}/> Salvo!</>:"Salvar configurações"}
       </button>
     </div>
+
+    {/* BACKUP */}
+    <div style={{...card,padding:28,marginTop:20}}>
+      <h3 style={{marginTop:0,fontSize:17,fontWeight:800}}>💾 Backup das propostas</h3>
+      <p style={{color:C.textSec,fontSize:14,marginTop:0,marginBottom:22,lineHeight:1.65}}>
+        Suas propostas ficam salvas no navegador. Para não perder nada, exporte um backup regularmente e importe quando precisar.
+      </p>
+      <div style={{display:"flex",gap:12,flexWrap:"wrap"}}>
+        <button onClick={()=>{
+          const dados = {
+            propostas: JSON.parse(localStorage.getItem("propoai_proposals")||"[]"),
+            configuracoes: JSON.parse(localStorage.getItem("propoai_settings")||"{}"),
+            exportadoEm: new Date().toLocaleString("pt-BR")
+          };
+          const blob = new Blob([JSON.stringify(dados,null,2)],{type:"application/json"});
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `propoia-backup-${new Date().toISOString().slice(0,10)}.json`;
+          a.click();
+          URL.revokeObjectURL(url);
+        }} className="hov" style={{...btnP,display:"inline-flex",alignItems:"center",gap:7}}>
+          <Icon n="download" c="#fff" s={16}/> Exportar backup
+        </button>
+
+        <button onClick={()=>document.getElementById("importFile").click()} className="hov"
+          style={{...btnG,display:"inline-flex",alignItems:"center",gap:7}}>
+          <Icon n="upload" s={16}/> Importar backup
+        </button>
+        <input id="importFile" type="file" accept=".json" style={{display:"none"}} onChange={e=>{
+          const file = e.target.files?.[0]; if(!file) return;
+          const r = new FileReader();
+          r.onload = () => {
+            try {
+              const dados = JSON.parse(r.result);
+              if(dados.propostas) localStorage.setItem("propoai_proposals", JSON.stringify(dados.propostas));
+              if(dados.configuracoes) localStorage.setItem("propoai_settings", JSON.stringify(dados.configuracoes));
+              alert("✅ Backup importado com sucesso! Recarregue a página.");
+            } catch { alert("❌ Arquivo inválido. Use um backup exportado pelo PropoAI."); }
+          };
+          r.readAsText(file);
+          e.target.value = "";
+        }}/>
+      </div>
+      <p style={{color:C.textSec,fontSize:12.5,marginTop:14,marginBottom:0}}>
+        💡 Dica: exporte um backup toda semana para garantir que suas propostas estão seguras.
+      </p>
+    </div>
   </div>;
 }
 
