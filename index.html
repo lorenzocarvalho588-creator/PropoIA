@@ -13,18 +13,18 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <style>
   *{font-family:'Plus Jakarta Sans',system-ui,sans-serif;-webkit-font-smoothing:antialiased;box-sizing:border-box}
-  body{margin:0;background:linear-gradient(180deg,#EBEFF6 0%,#E2E8F2 100%);color:#0F172A;min-height:100vh}
+  body{margin:0;background:linear-gradient(180deg,#F3F1EA 0%,#ECEAE1 100%);color:#0F172A;min-height:100vh}
   i[data-lucide]{width:18px;height:18px;display:inline-block;vertical-align:middle}
   .hov{transition:all .18s ease}.hov:hover{transform:translateY(-2px)}
-  .spin{width:32px;height:32px;border:3px solid #DBEAFE;border-top-color:#2563EB;border-radius:50%;animation:sp 1s linear infinite}
+  .spin{width:32px;height:32px;border:3px solid #DCE5E1;border-top-color:#2F5D54;border-radius:50%;animation:sp 1s linear infinite}
   @keyframes sp{to{transform:rotate(360deg)}}
   @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   .fu{animation:fu .35s ease both}
   @keyframes sl{0%{margin-left:-40%}100%{margin-left:110%}}
   input,textarea,select{font-family:inherit}
-  ::-webkit-scrollbar{width:7px}::-webkit-scrollbar-thumb{background:#cbd5e1;border-radius:8px}
+  ::-webkit-scrollbar{width:7px}::-webkit-scrollbar-thumb{background:#D9D6CD;border-radius:8px}
   .serif{font-family:'Fraunces',Georgia,'Times New Roman',serif}
-  :focus-visible{outline:2px solid #2563EB;outline-offset:2px;border-radius:6px}
+  :focus-visible{outline:2px solid #2F5D54;outline-offset:2px;border-radius:6px}
   button:focus:not(:focus-visible){outline:none}
   @media (prefers-reduced-motion: reduce){*{animation-duration:.001ms!important;animation-iteration-count:1!important;transition:none!important}}
   @media print{
@@ -39,12 +39,12 @@
 <script type="text/babel" data-presets="react">
 const { useState, useEffect, useRef, useCallback } = React;
 
-const LOGO_SRC = "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232563EB%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233B82F6%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2226%22%20fill%3D%22url%28%23g%29%22%2F%3E%3Crect%20x%3D%2230%22%20y%3D%2222%22%20width%3D%2240%22%20height%3D%2256%22%20rx%3D%227%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2238%22%20y%3D%2234%22%20width%3D%2224%22%20height%3D%225%22%20rx%3D%222.5%22%20fill%3D%22%232563EB%22%2F%3E%3Crect%20x%3D%2238%22%20y%3D%2246%22%20width%3D%2224%22%20height%3D%225%22%20rx%3D%222.5%22%20fill%3D%22%2393C5FD%22%2F%3E%3Crect%20x%3D%2238%22%20y%3D%2258%22%20width%3D%2216%22%20height%3D%225%22%20rx%3D%222.5%22%20fill%3D%22%2393C5FD%22%2F%3E%3Cpath%20d%3D%22M70%2030%20l2.6%206.4%206.4%202.6%20-6.4%202.6%20-2.6%206.4%20-2.6%20-6.4%20-6.4%20-2.6%206.4%20-2.6%20z%22%20fill%3D%22%23FACC15%22%2F%3E%3C%2Fsvg%3E";
+const LOGO_SRC = "data:image/svg+xml;charset=utf-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20100%20100%22%3E%3Cdefs%3E%3ClinearGradient%20id%3D%22g%22%20x1%3D%220%22%20y1%3D%220%22%20x2%3D%221%22%20y2%3D%221%22%3E%3Cstop%20offset%3D%220%22%20stop-color%3D%22%232F5D54%22%2F%3E%3Cstop%20offset%3D%221%22%20stop-color%3D%22%233C7468%22%2F%3E%3C%2FlinearGradient%3E%3C%2Fdefs%3E%3Crect%20width%3D%22100%22%20height%3D%22100%22%20rx%3D%2226%22%20fill%3D%22url%28%23g%29%22%2F%3E%3Crect%20x%3D%2230%22%20y%3D%2222%22%20width%3D%2240%22%20height%3D%2256%22%20rx%3D%227%22%20fill%3D%22%23fff%22%2F%3E%3Crect%20x%3D%2238%22%20y%3D%2234%22%20width%3D%2224%22%20height%3D%225%22%20rx%3D%222.5%22%20fill%3D%22%232F5D54%22%2F%3E%3Crect%20x%3D%2238%22%20y%3D%2246%22%20width%3D%2224%22%20height%3D%225%22%20rx%3D%222.5%22%20fill%3D%22%23A9C2BA%22%2F%3E%3Crect%20x%3D%2238%22%20y%3D%2258%22%20width%3D%2216%22%20height%3D%225%22%20rx%3D%222.5%22%20fill%3D%22%23A9C2BA%22%2F%3E%3Cpath%20d%3D%22M70%2030%20l2.6%206.4%206.4%202.6%20-6.4%202.6%20-2.6%206.4%20-2.6%20-6.4%20-6.4%20-2.6%206.4%20-2.6%20z%22%20fill%3D%22%23C99A63%22%2F%3E%3C%2Fsvg%3E";
 
 const C = {
-  primary:"#1E3A8A",secondary:"#2563EB",accent:"#3B82F6",
-  bg:"#fff",bgSec:"#EEF2F7",text:"#0B1220",textSec:"#475569",
-  success:"#059669",border:"#CBD5E1",sidebar:"#0D1B3E"
+  primary:"#1F3A34",secondary:"#2F5D54",accent:"#3C7468",
+  bg:"#fff",bgSec:"#EFEDE6",text:"#0B1220",textSec:"#475569",
+  success:"#059669",border:"#D9D6CD",sidebar:"#16201C"
 };
 
 const TEMPLATES = [
@@ -136,7 +136,7 @@ const Icon = ({n,s=18,c}) => <i data-lucide={n} style={{width:s,height:s,color:c
 const card = {background:"#fff",border:`1px solid ${C.border}`,borderRadius:20,padding:24,boxShadow:"0 4px 24px rgba(15,23,42,.07)"};
 const inp = {width:"100%",padding:"11px 13px",border:`1px solid ${C.border}`,borderRadius:10,fontSize:14.5,outline:"none",background:"#fff",boxSizing:"border-box"};
 const lab = {display:"block",fontSize:12.5,fontWeight:600,color:C.textSec,marginBottom:5};
-const btnP = {background:`linear-gradient(135deg,${C.secondary},${C.accent})`,color:"#fff",border:"none",padding:"11px 20px",borderRadius:10,fontSize:14.5,fontWeight:700,cursor:"pointer",boxShadow:"0 4px 14px rgba(37,99,235,.3)"};
+const btnP = {background:`linear-gradient(135deg,${C.secondary},${C.accent})`,color:"#fff",border:"none",padding:"11px 20px",borderRadius:10,fontSize:14.5,fontWeight:700,cursor:"pointer",boxShadow:"0 4px 14px rgba(47,93,84,.3)"};
 const btnG = {background:"#fff",color:C.text,border:`1px solid ${C.border}`,padding:"11px 18px",borderRadius:10,fontSize:14.5,fontWeight:600,cursor:"pointer"};
 const btnWA = {background:"#25D366",color:"#fff",border:"none",padding:"11px 20px",borderRadius:10,fontSize:14.5,fontWeight:600,cursor:"pointer"};
 const rowG = {display:"grid",gridTemplateColumns:"1fr 1fr",gap:14};
@@ -182,7 +182,7 @@ function App(){
         <div style={{display:"flex",alignItems:"center",gap:10,padding:"4px 8px",marginBottom:32}}>
           <img src={LOGO_SRC} style={{width:42,height:42,borderRadius:11,objectFit:"cover",boxShadow:"0 4px 12px rgba(0,0,0,.3)"}}/>
           <div>
-            <div style={{fontSize:17,fontWeight:800,color:"#fff",letterSpacing:"-0.3px",lineHeight:1.1}}>Proposta<span style={{color:"#93C5FD"}}>IA</span></div>
+            <div style={{fontSize:17,fontWeight:800,color:"#fff",letterSpacing:"-0.3px",lineHeight:1.1}}>Proposta<span style={{color:"#A9C2BA"}}>IA</span></div>
             <div style={{fontSize:11,color:"rgba(255,255,255,.4)",fontWeight:500}}>Propostas com IA</div>
           </div>
         </div>
@@ -200,7 +200,7 @@ function App(){
               <div style={{width:32,height:32,borderRadius:9,
                 background:a?`linear-gradient(135deg,${C.secondary},${C.accent})`:"rgba(255,255,255,.07)",
                 display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,
-                boxShadow:a?"0 3px 10px rgba(37,99,235,.4)":"none"}}>
+                boxShadow:a?"0 3px 10px rgba(47,93,84,.4)":"none"}}>
                 <Icon n={it.icon} c={a?"#fff":"rgba(255,255,255,.45)"} s={15}/>
               </div>
               {it.label}
@@ -213,7 +213,7 @@ function App(){
             style={{width:"100%",background:`linear-gradient(135deg,${C.secondary},${C.accent})`,color:"#fff",border:"none",
               padding:"13px",borderRadius:12,fontSize:14.5,fontWeight:700,cursor:"pointer",
               display:"flex",alignItems:"center",justifyContent:"center",gap:8,
-              boxShadow:"0 6px 20px rgba(37,99,235,.45)"}}>
+              boxShadow:"0 6px 20px rgba(47,93,84,.45)"}}>
             <Icon n="plus" c="#fff" s={17}/> Nova Proposta
           </button>
         </div>
@@ -267,8 +267,8 @@ function Dashboard({proposals,go,open}){
   const recent=[...proposals].sort((a,b)=>b.createdAt-a.createdAt).slice(0,6);
   return <div className="fu" style={{maxWidth:1000}}>
     {total===0 && <div style={{...card,padding:"36px",marginBottom:24,
-      background:`linear-gradient(135deg,#0D1B3E 0%,#1E3A8A 60%,#2563EB 100%)`,
-      color:"#fff",border:"none",boxShadow:"0 16px 48px rgba(13,27,62,.4)",position:"relative",overflow:"hidden"}}>
+      background:`linear-gradient(135deg,#16201C 0%,#1F3A34 60%,#2F5D54 100%)`,
+      color:"#fff",border:"none",boxShadow:"0 16px 48px rgba(22,32,28,.4)",position:"relative",overflow:"hidden"}}>
       <div style={{position:"absolute",top:-40,right:-40,width:220,height:220,borderRadius:"50%",background:"rgba(255,255,255,.04)",pointerEvents:"none"}}/>
       <div style={{position:"absolute",bottom:-30,right:80,width:140,height:140,borderRadius:"50%",background:"rgba(255,255,255,.03)",pointerEvents:"none"}}/>
       <h2 style={{margin:"0 0 10px",fontSize:24,fontWeight:800,position:"relative"}}>Bem-vindo ao PropostaIA 👋</h2>
@@ -426,7 +426,7 @@ function MyProposals({proposals,edit,viewDoc,del,go}){
               <div style={{width:42,height:42,borderRadius:12,
                 background:`linear-gradient(135deg,${C.primary},${C.accent})`,
                 display:"flex",alignItems:"center",justifyContent:"center",
-                boxShadow:"0 4px 12px rgba(37,99,235,.3)"}}>
+                boxShadow:"0 4px 12px rgba(47,93,84,.3)"}}>
                 <Icon n="file-text" c="#fff" s={20}/>
               </div>
               <Badge s={p.status} v={p.views}/>
@@ -661,9 +661,9 @@ function ViewDoc({proposal,settings,back,goSettings}){
       </div>
     </div>}
 
-    {brandReady && <div className="noprint" style={{background:"#F0F7FF",border:"1px solid #BFDBFE",borderRadius:14,padding:"13px 17px",marginBottom:18,display:"flex",alignItems:"flex-start",gap:11}}>
+    {brandReady && <div className="noprint" style={{background:"#F3F1EA",border:"1px solid #CBD8D2",borderRadius:14,padding:"13px 17px",marginBottom:18,display:"flex",alignItems:"flex-start",gap:11}}>
       <Icon n="lightbulb" c={C.secondary} s={18}/>
-      <span style={{fontSize:13.5,color:"#1E40AF",lineHeight:1.5}}><strong>Dica:</strong> baixe o PDF e envie o arquivo pelo WhatsApp ou e-mail. Passa muito mais profissional do que mandar um link.</span>
+      <span style={{fontSize:13.5,color:"#1F3A34",lineHeight:1.5}}><strong>Dica:</strong> baixe o PDF e envie o arquivo pelo WhatsApp ou e-mail. Passa muito mais profissional do que mandar um link.</span>
     </div>}
 
     <div id="wrap" style={{maxWidth:800,margin:"0 auto",background:"#fff",borderRadius:18,boxShadow:"0 12px 50px rgba(15,23,42,.13)",overflow:"hidden"}}>
@@ -673,9 +673,9 @@ function ViewDoc({proposal,settings,back,goSettings}){
     {share && <div className="noprint" onClick={()=>setShare(false)} style={{position:"fixed",inset:0,background:"rgba(11,27,63,.55)",backdropFilter:"blur(3px)",display:"flex",alignItems:"center",justifyContent:"center",zIndex:100,padding:20}}>
       <div onClick={e=>e.stopPropagation()} style={{background:"#fff",borderRadius:20,padding:28,maxWidth:440,width:"100%",boxShadow:"0 24px 70px rgba(0,0,0,.3)"}}>
         <h3 style={{margin:"0 0 16px",fontSize:18,fontWeight:800}}>Compartilhar proposta</h3>
-        <div style={{background:"#F0F7FF",border:"1px solid #BFDBFE",borderRadius:10,padding:"11px 14px",marginBottom:16,display:"flex",gap:9,alignItems:"flex-start"}}>
+        <div style={{background:"#F3F1EA",border:"1px solid #CBD8D2",borderRadius:10,padding:"11px 14px",marginBottom:16,display:"flex",gap:9,alignItems:"flex-start"}}>
           <Icon n="lightbulb" c={C.secondary} s={16}/>
-          <p style={{color:"#1E40AF",fontSize:13,margin:0,lineHeight:1.5}}><strong>Recomendado:</strong> baixe o PDF e envie pelo WhatsApp. Muito mais profissional.</p>
+          <p style={{color:"#1F3A34",fontSize:13,margin:0,lineHeight:1.5}}><strong>Recomendado:</strong> baixe o PDF e envie pelo WhatsApp. Muito mais profissional.</p>
         </div>
         <label style={lab}>Link da proposta</label>
         <div style={{display:"flex",gap:8,marginBottom:16}}>
@@ -697,7 +697,7 @@ function ViewDoc({proposal,settings,back,goSettings}){
 function Doc({proposal,settings,compact}){
   const c=proposal.content||{};
   const brand=settings.brandColor||C.primary;
-  const gold="#C8A24B";
+  const gold="#B08A5A";
   const pad=compact?22:56;
   const company=settings.companyName||"Sua Empresa";
   const fmtDate=new Date(proposal.createdAt).toLocaleDateString("pt-BR",{day:"2-digit",month:"long",year:"numeric"});
@@ -712,7 +712,7 @@ function Doc({proposal,settings,compact}){
     <span style={{fontSize:compact?13.5:15.5,color:"#334155",lineHeight:1.7}}>{it}</span></div>)}</div>;
 
   return <div style={{background:"#fff"}}>
-    <div style={{position:"relative",background:`linear-gradient(150deg,#0B1B3F 0%,${brand} 55%,#1E40AF 100%)`,color:"#fff",padding:`${pad}px ${pad}px ${compact?pad:pad+10}px`,overflow:"hidden"}}>
+    <div style={{position:"relative",background:`linear-gradient(150deg,#16201C 0%,${brand} 55%,#1F3A34 100%)`,color:"#fff",padding:`${pad}px ${pad}px ${compact?pad:pad+10}px`,overflow:"hidden"}}>
       <div className="serif" style={{position:"absolute",top:compact?-44:-78,right:compact?-30:-50,fontSize:compact?170:300,fontWeight:900,lineHeight:1,color:"rgba(255,255,255,.05)",pointerEvents:"none",userSelect:"none"}}>{(company[0]||"P").toUpperCase()}</div>
       <div style={{position:"relative"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:compact?26:52,gap:12}}>
@@ -746,17 +746,17 @@ function Doc({proposal,settings,compact}){
 
       {c.scope?.length>0 && <><Eyebrow>Escopo do projeto</Eyebrow><Li items={c.scope} mark/></>}
 
-      {c.timeline?.length>0 && <><Eyebrow>Cronograma</Eyebrow><div style={{display:"flex",flexDirection:"column",gap:compact?10:12}}>{c.timeline.map((t,i)=><div key={i} style={{display:"flex",gap:16,padding:compact?"13px 15px":"17px 19px",background:"#F8FAFC",borderRadius:13,border:`1px solid ${C.border}`,borderLeft:`3px solid ${brand}`}}><div style={{minWidth:compact?70:104,flexShrink:0}}><div style={{fontWeight:800,fontSize:compact?13:14.5}}>{t.phase}</div><div style={{fontSize:compact?11:12.5,color:brand,fontWeight:700,marginTop:2}}>{t.duration}</div></div><div style={{fontSize:compact?13:14.5,color:"#475569",lineHeight:1.65}}>{t.description}</div></div>)}</div></>}
+      {c.timeline?.length>0 && <><Eyebrow>Cronograma</Eyebrow><div style={{display:"flex",flexDirection:"column",gap:compact?10:12}}>{c.timeline.map((t,i)=><div key={i} style={{display:"flex",gap:16,padding:compact?"13px 15px":"17px 19px",background:"#F7F6F1",borderRadius:13,border:`1px solid ${C.border}`,borderLeft:`3px solid ${brand}`}}><div style={{minWidth:compact?70:104,flexShrink:0}}><div style={{fontWeight:800,fontSize:compact?13:14.5}}>{t.phase}</div><div style={{fontSize:compact?11:12.5,color:brand,fontWeight:700,marginTop:2}}>{t.duration}</div></div><div style={{fontSize:compact?13:14.5,color:"#475569",lineHeight:1.65}}>{t.description}</div></div>)}</div></>}
 
       {(c.investmentIntro||c.investmentItems?.length>0||c.investmentTotal) && <><Eyebrow>Investimento</Eyebrow>{c.investmentIntro && <p style={{fontSize:compact?13.5:15.5,lineHeight:1.75,color:"#334155",marginTop:0,marginBottom:16}}>{c.investmentIntro}</p>}<div style={{border:`1px solid ${C.border}`,borderRadius:14,overflow:"hidden",boxShadow:"0 2px 10px rgba(15,23,42,.04)"}}>{(c.investmentItems||[]).map((it,i)=><div key={i} style={{display:"flex",justifyContent:"space-between",gap:14,padding:compact?"12px 16px":"15px 20px",borderBottom:`1px solid ${C.border}`,fontSize:compact?13:15}}><span style={{color:"#334155"}}>{it.item}</span><b style={{whiteSpace:"nowrap"}}>{it.value}</b></div>)}{c.investmentTotal && <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:compact?"14px 16px":"18px 20px",background:`linear-gradient(135deg,${brand}0f,${gold}12)`}}><span style={{fontWeight:700,fontSize:compact?13.5:15,color:"#0B1220"}}>Investimento total</span><span className="serif" style={{color:brand,fontSize:compact?18:24,fontWeight:900,letterSpacing:"-.5px"}}>{c.investmentTotal}</span></div>}</div></>}
 
-      {c.benefits?.length>0 && <><Eyebrow>Benefícios</Eyebrow><div style={{display:"grid",gridTemplateColumns:compact?"1fr":"1fr 1fr",gap:compact?10:12}}>{c.benefits.map((b,i)=><div key={i} style={{display:"flex",gap:11,padding:compact?"12px 14px":"15px 17px",background:"#F8FAFC",borderRadius:12,border:`1px solid ${C.border}`}}><Icon n="check-circle" c={C.success} s={compact?16:18}/><span style={{fontSize:compact?13:14.5,color:"#334155",lineHeight:1.5}}>{b}</span></div>)}</div></>}
+      {c.benefits?.length>0 && <><Eyebrow>Benefícios</Eyebrow><div style={{display:"grid",gridTemplateColumns:compact?"1fr":"1fr 1fr",gap:compact?10:12}}>{c.benefits.map((b,i)=><div key={i} style={{display:"flex",gap:11,padding:compact?"12px 14px":"15px 17px",background:"#F7F6F1",borderRadius:12,border:`1px solid ${C.border}`}}><Icon n="check-circle" c={C.success} s={compact?16:18}/><span style={{fontSize:compact?13:14.5,color:"#334155",lineHeight:1.5}}>{b}</span></div>)}</div></>}
 
       {c.differentials?.length>0 && <><Eyebrow>Diferenciais</Eyebrow><Li items={c.differentials}/></>}
 
       {c.nextSteps?.length>0 && <><Eyebrow>Próximos passos</Eyebrow><div style={{display:"flex",flexDirection:"column",gap:compact?11:14}}>{c.nextSteps.map((s,i)=><div key={i} style={{display:"flex",gap:14,alignItems:"center"}}><div className="serif" style={{width:compact?30:38,height:compact?30:38,borderRadius:"50%",background:`linear-gradient(135deg,${brand},${C.accent})`,color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800,fontSize:compact?14:17,flexShrink:0,boxShadow:`0 4px 12px ${brand}40`}}>{i+1}</div><span style={{fontSize:compact?13.5:15.5,color:"#334155",lineHeight:1.5}}>{s}</span></div>)}</div></>}
 
-      {c.closing && <div style={{marginTop:compact?28:50,padding:compact?"22px 22px":"34px 34px",background:`linear-gradient(150deg,#0B1B3F,${brand})`,borderRadius:18,color:"#fff",position:"relative",overflow:"hidden"}}>
+      {c.closing && <div style={{marginTop:compact?28:50,padding:compact?"22px 22px":"34px 34px",background:`linear-gradient(150deg,#16201C,${brand})`,borderRadius:18,color:"#fff",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",top:-30,right:-20,width:compact?120:180,height:compact?120:180,borderRadius:"50%",background:"rgba(255,255,255,.04)",pointerEvents:"none"}}/>
         <div style={{position:"relative"}}>
           <p style={{fontSize:compact?14:17,lineHeight:1.75,margin:0,opacity:.95,fontWeight:400}}>{c.closing}</p>
